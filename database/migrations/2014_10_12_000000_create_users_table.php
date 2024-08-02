@@ -17,11 +17,15 @@ class CreateUsersTable extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
+            $table->string('role_id')->default('3');
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->rememberToken();
+            $table->string('remember_token', 500)->nullable();
             $table->timestamps();
         });
+        DB::table('users')->insert([
+            ['name' => 'SuperAdmin', 'email' => 'admin@gmail.com','role_id' => '1','password' => '$2a$12$o7NM9zBNmBBH50ImyQ0LpOKcEyE0vHkWpA6p13U2cz59PmVLETk9a','remember_token' => '$2a$12$o7NM9zBNmBBH50ImyQ0LpOKcEyE0vHkWpA6p13U2cz59PmVLETk9ae£fd(h6'],
+        ]); 
     }
 
     /**

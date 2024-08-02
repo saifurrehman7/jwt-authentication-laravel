@@ -2,7 +2,8 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\ApiUserController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -14,16 +15,23 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+Route::post('signup', [ApiUserController::class, 'register'])->name('manual-register');
+Route::post('login', [ApiUserController::class, 'authenticateapi'])->name('manual-login');
+Route::post('logout', [ApiUserController::class, 'logout'])->name('manual-logout');
+
+// Protected Routes (Require Authentication)
+Route::middleware('auth:api')->group(function () {
+    Route::get('user-list', [ApiUserController::class, 'viewUserList'])->name('user-list')->middleware('checkRole');
+    Route::post('edit-product', [ApiUserController::class, 'editProduct'])->name('edit-product')->middleware('checkRole');
+    Route::get('product-page', [ApiUserController::class, 'viewProductPage'])->name('product-page');
+    Route::post('change-user-role', [ApiUserController::class, 'changeUserRole'])->name('change-user-role'); 
+    Route::any('delete-product', [ApiUserController::class, 'deleteProduct'])->middleware('superadmin');
+    Route::post('add-product', [ApiUserController::class, 'addProduct'])->name('add-product')->middleware('superadmin');
+    Route::any('delete-user', [ApiUserController::class, 'deleteUser'])->middleware('superadmin');
 });
+Route::middleware(['superadmin'])->group(function () {
+    // Route::any('delete-product', [ApiUserController::class, 'deleteProduct'])->middleware('superadmin');
 
-
-Route::post('register', 'UserController@register');
-Route::post('login', 'UserController@authenticate');
-Route::get('open', 'DataController@open');
-
-Route::group(['middleware' => ['jwt.verify']], function() {
-    Route::get('user', 'UserController@getAuthenticatedUser');
-    Route::get('closed', 'DataController@closed');
+    
+    Route::any('change-user-role', [ApiUserController::class, 'changeUserRole'])->name('change-user-role');
 });
